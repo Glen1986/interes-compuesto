@@ -1,0 +1,9 @@
+import styled from 'styled-components'
+
+const Balance = styled.span`
+    font-size: 36px;
+    margin-top: 2rem;
+    display: inline-block;
+    color: black;
+`
+export default Balance

@@ -1,8 +1,11 @@
 import { Formik, Form } from 'formik'
+import * as Yup from 'yup'
+import { useState } from 'react'
 import Input from './components/Input'
 import Button from './components/Button'
 import Container from './components/Container'
 import Section from './components/Section'
+import Balance from './components/Balance'
 
 const compoundInterest = (deposit, contribution, years, rate) => {
     let total = deposit
@@ -11,8 +14,14 @@ const compoundInterest = (deposit, contribution, years, rate) => {
     }
     return Math.round(total)
 }
-
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFracionDigits: 2,
+    maximumFracionDigits: 2,
+})
 function App() {
+    const [balance, setBalance] = useState('')
     const handleSubmit = ({ deposit, contribution, years, rate }) => {
         const val = compoundInterest(
             Number(deposit),
@@ -20,7 +29,7 @@ function App() {
             Number(years),
             Number(rate)
         )
-        console.log(val)
+        setBalance(formatter.format(val))
     }
     return (
         <Container>
@@ -33,6 +42,22 @@ function App() {
                         rate: '',
                     }}
                     onSubmit={handleSubmit}
+                    validationSchema={Yup.object({
+                        deposit: Yup.number()
+                            .required('Obligatorio')
+                            .typeError('Debe ser un Numero valido'),
+                        contribution: Yup.number()
+                            .required('Obligatorio')
+                            .typeError('Debe ser un Numero valido'),
+                        years: Yup.number()
+                            .required('Obligatorio')
+                            .typeError('Debe ser un Año valido'),
+                        rate: Yup.number()
+                            .required('Obligatorio')
+                            .typeError('Debe ser un Porsentaje valido')
+                            .min(0, 'el valor minimo es 0')
+                            .max(1, 'el valor maximo es 1'),
+                    })}
                 >
                     <Form>
                         <Input name="deposit" label="Deposito Inicial" />
@@ -42,6 +67,9 @@ function App() {
                         <Button type="submit">Calcular </Button>
                     </Form>
                 </Formik>
+                {balance !== '' ? (
+                    <Balance>Balance Final: {balance}</Balance>
+                ) : null}
             </Section>
         </Container>
     )
